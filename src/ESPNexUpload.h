@@ -139,22 +139,28 @@ public: /* methods */
      * @return none.
      */
 	void end(void);
-	
-	
-	
-public: /* data */ 
-
-    String statusMessage = "";
-
-private: /* methods */
-
-    /*
+    
+    /**
      * get communicate baudrate. 
      * 
      * @return communicate baudrate.
      *
      */
-    uint16_t _getBaudrate(void);
+    uint16_t getBaudrate(void);
+
+    /**
+     * get communicate baudrate. 
+     * 
+     * @return model.
+     *
+     */
+    String getModel(void);
+
+public: /* data */ 
+
+    String statusMessage = "";
+
+private: /* methods */
 
     /*
      * search communicate baudrate.
@@ -266,6 +272,7 @@ private: /* data */
     uint32_t _undownloadByte; 	    /* undownload byte of tft file */
     uint32_t _upload_baudrate;      /* upload baudrate */
     uint16_t _sent_packets = 0;     /* upload baudrate */
+    String _model;
 	
 	THandlerFunction _updateProgressCallback;
 };

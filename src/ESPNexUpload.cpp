@@ -71,6 +71,7 @@
 
 ESPNexUpload::ESPNexUpload(uint32_t upload_baudrate){
     _upload_baudrate = upload_baudrate;
+    _model = "";
 }
 
 
@@ -83,7 +84,7 @@ bool ESPNexUpload::connect(){
     dbSerialBegin(115200);
 	_printInfoLine(F("serial tests & connect"));
 
-    if(_getBaudrate() == 0){
+    if(getBaudrate() == 0){
         statusMessage = F("get baudrate error");
         _printInfoLine(statusMessage);
         return false;
@@ -121,7 +122,7 @@ bool ESPNexUpload::prepareUpload(uint32_t file_size){
 
 
 
-uint16_t ESPNexUpload::_getBaudrate(void){
+uint16_t ESPNexUpload::getBaudrate(void){
 
     _baudrate = 0;
     uint32_t baudrate_array[7] = {115200,19200,9600,57600,38400,4800,2400};
@@ -189,10 +190,20 @@ bool ESPNexUpload::_searchBaudrate(uint32_t baudrate){
 		_printInfoLine(F("conclusion, correct baudrate"));
 	}
 
+    int modelIndex = response.indexOf(F("NX"));
+    
+    if(modelIndex > 0)
+    {
+        _model = response.substring(modelIndex, response.indexOf(F(","), modelIndex + 1));
+    }
+
 	return 1;
 }
 
-
+String ESPNexUpload::getModel()
+{
+    return _model;
+}
 
 void ESPNexUpload::sendCommand(const char* cmd, bool tail, bool null_head){
 
