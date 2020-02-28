@@ -148,6 +148,7 @@ bool ESPNexUpload::_searchBaudrate(uint32_t baudrate){
     #endif
 
     String response = String("");
+    boolean connected = false;
 	_printInfoLine();
 	dbSerialPrint(F("init nextion serial interface on baudrate: "));
 	dbSerialPrintln(baudrate);
@@ -173,31 +174,53 @@ bool ESPNexUpload::_searchBaudrate(uint32_t baudrate){
 		_printInfoLine(F("display doesn't accept the first connect request"));
     } else {
 		_printInfoLine(F("display accept the first connect request"));
+        connected = true;
 	}
 
-	response = String("");  
-	delay(110); // based on serial analyser from Nextion editor V0.58 to Nextion display NX4024T032_011R
-	this->sendCommand(_nextion_FF_FF, false);
-
-	this->sendCommand("connect"); // second attempt
-	this->recvRetString(response);
-	if(response.indexOf(F("comok")) == -1 && response[0] != 0x1A){
-		_printInfoLine(F("display doesn't accept the second connect request"));
-		_printInfoLine(F("conclusion, wrong baudrate"));
-		return 0;
-	}else {
-		_printInfoLine(F("display accept the second connect request"));
-		_printInfoLine(F("conclusion, correct baudrate"));
-	}
-
-    int modelIndex = response.indexOf(F("NX"));
-    
-    if(modelIndex > 0)
+    if(false == connected)
     {
-        _model = response.substring(modelIndex, response.indexOf(F(","), modelIndex + 1));
+        response = String("");  
+        delay(110); // based on serial analyser from Nextion editor V0.58 to Nextion display NX4024T032_011R
+        this->sendCommand(_nextion_FF_FF, false);
+
+        this->sendCommand("connect"); // second attempt
+        this->recvRetString(response);
+        if(response.indexOf(F("comok")) == -1){
+            _printInfoLine(F("display doesn't accept the second connect request"));
+            _printInfoLine(F("conclusion, wrong baudrate"));
+        }else {
+            _printInfoLine(F("display accept the second connect request"));
+            _printInfoLine(F("conclusion, correct baudrate"));
+            connected = true;
+        }
+    }
+    
+    if(false == connected)
+    {
+        response = String("");  
+        this->sendCommand("connect", false); // third attempt
+        this->recvRetString(response);
+        if(response.indexOf(F("comok")) == -1 && response[0] != 0x1A){
+            _printInfoLine(F("display doesn't accept the third connect request"));
+            _printInfoLine(F("conclusion, wrong baudrate"));
+        }else {
+            _printInfoLine(F("display accept the third connect request"));
+            _printInfoLine(F("conclusion, correct baudrate"));
+            connected = true;
+        }
     }
 
-	return 1;
+    if(true == connected)
+    {
+        int modelIndex = response.indexOf(F("NX"));
+        
+        if(modelIndex > 0)
+        {
+            _model = response.substring(modelIndex, response.indexOf(F(","), modelIndex + 1));
+        }
+    }
+
+	return connected;
 }
 
 String ESPNexUpload::getModel()
