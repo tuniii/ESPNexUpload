@@ -54,7 +54,6 @@
 
 #endif
 
-#define DEBUG_SERIAL_ENABLE
 #ifdef DEBUG_SERIAL_ENABLE
     #define dbSerialPrint(a)    Serial.print(a)
 	#define dbSerialPrintHex(a) Serial.print(a, HEX)
